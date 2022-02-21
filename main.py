@@ -23,13 +23,13 @@ def cal_score(df):
         left_in_stock = df.at[index,'amount_availble']
         # PROPER_INVENTORY = True -> means that I verify that I will not import only profitable items, to keep the diversity of inventory.
         # small inventory is to ensure you will order few from each item
-        small_inventory = round(sales_prediction / 10)
-        minimum = sales_prediction - left_in_stock if FULL_INVENTORY else small_inventory
+        small_inventory = sales_prediction / 20
+        minimum = round(sales_prediction - left_in_stock if FULL_INVENTORY else small_inventory)
         # if the item sold out last year now i will oreder 1.5 times more,
-        maximum = sales_prediction * 1.5 if left_in_stock == 0 else sales_prediction - left_in_stock
+        maximum = round(sales_prediction * 1.5 if left_in_stock == 0 else sales_prediction - left_in_stock)
         # verify minimum and maximum greater then 0
         minimum = max(0, minimum)
-        maximum = max(0, maximum)
+        maximum = max(0, maximum, minimum)
         scores.append(score)
         minimum_order.append(minimum)
         maximum_order.append(maximum)
@@ -91,7 +91,7 @@ if __name__ == '__main__':
 
 
     # TODO check what options we have
-    status = prob.solve(PULP_CBC_CMD(msg=0, options=['dualSimplex'] ))
+    status = prob.solve(PULP_CBC_CMD(msg=0, options=['dualSimplex']))
     print(LpStatus[status])
     for var in var_id:
         print(var, " = ", value(var))
