@@ -10,15 +10,36 @@ def load_data(file):
 
 #TODO
 def cal_score(df):
-    df["score"] = 0.5
-    df["minimum_order"] = 3
-    df["maximum_order"] = 100
+    scores = []
+    minimum_order = []
+    maximum_order = []
+    score = 0
+    minimum = 0
+    maximum = 0
+    # growth rate of 30% will become 1.33 for better calculation
+    sales_growth_rate = (SALES_GROWTH_RATE / 100) + 1
+    for index, row in df.iterrows():
+        print(df.at[index,'profit'])
+        score = df.at[index,'profit'] / df.at[index,'volume']
+        scores.append(score)
+        # PROPER_INVENTORY = True -> means that I verify that I will not import only profitable items, to keep the diversity of inventory.
+        minimum = (df.at[index,'sold_last_year'] - df.at[index,'amount_availble'] if PROPER_INVENTORY else 0 ) * sales_growth_rate
+        minimum_order.append(minimum)
+        # if the item sold out last year now i will oreder 1.5 times more,
+        maximum = (df.at[index,'sold_last_year'] * 1.5 if df.at[index,'amount_availble'] == 0 else df.at[index,'sold_last_year'] - df.at[index,'amount_availble']) * sales_growth_rate
+        maximum_order.append(maximum)
+    df["score"] = scores
+    df["minimum_order"] = minimum_order
+    df["maximum_order"] = maximum_order
 
+
+IS_INTEGER = False
+MAX_CAPACITY_CBM = {"20": 33, "40": 66}
+PROPER_INVENTORY = True
+# increase of sales rate in %, compare to last year
+SALES_GROWTH_RATE = 15
 
 if __name__ == '__main__':
-    IS_INTEGER = True
-    MAX_CAPACITY_CBM = {"20": 33, "40": 66}
-
 
     # load data
     df = load_data("opti-db.csv")
