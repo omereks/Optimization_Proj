@@ -1,5 +1,6 @@
 # https://www.coin-or.org/download/binary/CoinAll/CoinAll-1.6.0-win64-intel11.1.zip
 import pandas as pd
+import math
 from pulp import *
 
 
@@ -22,9 +23,9 @@ def cal_score(df):
         sales_prediction = df.at[index,'sold_last_year'] * sales_growth_rate
         left_in_stock = df.at[index,'amount_availble']
         # PROPER_INVENTORY = True -> means that I verify that I will not import only profitable items, to keep the diversity of inventory.
-        minimum = round(df.at[index,'sold_last_year'] / 20)
+        minimum = math.floor(df.at[index,'sold_last_year'] / 20)
         # if the item sold out last year now i will oreder 1.5 times more,
-        maximum = round(sales_prediction * 1.25 if left_in_stock == 0 else sales_prediction - left_in_stock)
+        maximum = math.floor(sales_prediction * 1.25 if left_in_stock == 0 else sales_prediction - left_in_stock)
         # verify minimum and maximum greater then 0
         minimum = max(0, minimum)
         maximum = max(0, maximum, minimum)
@@ -36,7 +37,7 @@ def cal_score(df):
     df["maximum_order"] = maximum_order
 
 
-IS_INTEGER = False
+IS_INTEGER = True
 MAX_CAPACITY_CBM = {"20": 33, "40": 66}
 # increase of sales rate in %, compare to last year
 SALES_GROWTH_RATE = 6
@@ -84,7 +85,7 @@ if __name__ == '__main__':
     for var in var_id:
         var_valume.append(var * volume_list[i])
         i += 1
-    prob += sum(var_valume) <= MAX_CAPACITY_CBM["20"]
+    prob += sum(var_valume) <= MAX_CAPACITY_CBM["40"]
 
 
     # TODO check what options we have
