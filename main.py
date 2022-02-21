@@ -22,9 +22,7 @@ def cal_score(df):
         sales_prediction = df.at[index,'sold_last_year'] * sales_growth_rate
         left_in_stock = df.at[index,'amount_availble']
         # PROPER_INVENTORY = True -> means that I verify that I will not import only profitable items, to keep the diversity of inventory.
-        # small inventory is to ensure you will order few from each item
-        small_inventory = df.at[index,'sold_last_year'] / 10
-        minimum = round(small_inventory)
+        minimum = round(df.at[index,'sold_last_year'] / 20)
         # if the item sold out last year now i will oreder 1.5 times more,
         maximum = round(sales_prediction * 1.5 if left_in_stock == 0 else sales_prediction - left_in_stock)
         # verify minimum and maximum greater then 0
